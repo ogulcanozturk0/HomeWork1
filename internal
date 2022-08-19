@@ -1,0 +1,126 @@
+I. Dahili Sınıflara Genel Bakış
+
+Dahili sınıflar başka bir sınıfın dahili sınıfları olarak tanımlanır, bu sınıfa dahili sınıflar ve diğer sınıfa harici sınıflar denir. Örneğin, A sınıfı B sınıfında tanımlanır, A sınıfına dahili sınıf ve B sınıfına harici sınıf denir. Tanımın konumuna göre, dahili sınıfları üye dahili sınıflar ve yerel dahili sınıflar olarak sınıflandırırız. Tüm dahili sınıflar, harici sınıfların üyelerine (üye değişkenler, üye yöntemleri dahil) ve özel üyelere doğrudan erişime sahiptir. Tüm dahili sınıfların üyelerine (üye değişkenler, üye yöntemler dahil) erişmek için harici sınıfların nesneler oluşturması gerekir.
+
+II. Üyelerin Dahili Sınıfları
+1. Üyelerin iç sınıfı kavramı
+Üye konumlarında tanımlanan sınıflara üye dahili sınıfları denir.
+
+2. Üye iç sınıfların kod formatı
+class A{
+    int b=10
+    class B{
+    }
+    public static void main(String[] args) {
+	}
+}
+Peki, doğrudan test sınıflarında dahili sınıfların üyelerine nasıl erişebilirim?
+
+Biçim: Harici sınıf adı. Dahili sınıf adı nesne adı = Harici sınıf nesnesi. Dahili sınıf nesnesi;
+
+3. Üye iç sınıfların ortak değiştiricileri ve uygulamaları
+Bir üyenin iç sınıfının değiştiricileri şunlardır:
+
+(1) özel: Veri güvenliğini sağlamak için
+(2) statik: verilere kolay erişim için
+
+Notlar: (1) Statik dahili sınıflar tarafından erişilen harici sınıf verileri statik olarak değiştirilmelidir.
+(2) Üyelik yöntemleri statik veya statik olmayan olabilir ve statik olarak değiştirilmiş iç üye sınıflarının erişim yöntemleri aşağıdaki gibidir:
+
+Biçim: Harici sınıf adı. Dahili sınıf adı nesne adı = yeni harici sınıf adı.Dahili sınıf adı ();
+Örneğin;
+
+
+public class Outer {
+    int num = 10;
+    private int a = 100;
+    //Define member inner classes
+    class Inner {
+        int b = 109;
+        public void innerShow() {
+            System.out.println("Inner class show Method");
+        }
+        //Internal classes have direct access to members of external classes, including private ones.
+        public void innerTest(){
+            System.out.println(num);
+            System.out.println(a);
+            outerShow();
+            outerTest();
+        }
+    }
+    public void outerShow() {
+        System.out.println("This is an external class show Method");
+    }
+    private void outerTest() {
+        System.out.println("This is an external class show Method");
+    }
+    //External classes, which want to access members of internal classes, have to create objects of internal classes
+    public void method(){
+        //Create objects for internal classes
+        Inner inner = new Inner();
+        System.out.println(inner.b);
+        inner.innerShow();
+    }
+}
+public class MyTest {
+    public static void main(String[] args) {
+        Outer outer = new Outer();
+        System.out.println(outer.num);
+        outer.outerShow();
+        System.out.println("--------------------------------");
+        //Use the attributes and methods of member inner classes
+        //Syntax for creating member inner classes
+        Outer.Inner inner=new Outer().new Inner();
+        System.out.println(inner.b);
+        inner.innerShow();
+        System.out.println("---------------");
+        outer.method();
+    }
+}
+3. Yerel Dahili Sınıflar
+1. Yerel İç Sınıflar Kavramı
+Bir dahili sınıfı harici bir sınıfa tanımlayan bir yönteme yerel dahili sınıf denir.
+
+2. Yerel dahili sınıfların kod formatı
+	class A{
+    	int b=10
+    public static void main(String[] args) {
+    	class B{
+    	}
+	}
+}
+3. Yerel İç Sınıflardan Yerel Değişkenlere Erişim Problemi
+Yerel dahili sınıflar, harici sınıfların üyelerine (üye değişkenler, üye yöntemleri dahil) ve özel üyelere doğrudan erişime sahiptir. Üye yöntemler dahili sınıflara eriştiğinde, dahili sınıf nesneleri oluşturmaları ve yerel dahili sınıf işlevlerini kullanmak için dahili sınıf yöntemlerini çağırmaları gerekir. Yerel değişkenlere yerel dahili sınıf erişimi sonlandırılmalıdır, çünkü yöntem çağrıldıkça yerel değişkenler kaybolacaktır ve yerel nesneler yığın bellekten hemen kaybolmaz, aynı zamanda bu değişkeni kullanır, böylece verilerin olmaya devam etmesine izin vermek için kullanıldığında, yığın belleğinde sabit bir değerin saklanması için fianl modifikasyonu kullanmalıyız.
+
+Örneğin:
+//Harici ve yerel dahili sınıflar oluşturun
+public class Outer {
+    int num=10;
+    private int a=100;
+    public void waiShow(){
+       final int b=20;
+       //Üye iç sınıflarını tanımla
+        class Inner{
+            int c=1;
+            public void neiShow(){
+                System.out.println("The local variables are:"+b);
+                System.out.println("Internal member variables are:"+c);
+                System.out.println("The external member variable is"+num);
+                System.out.println("External private member variables are:"+a);  //Dahili sınıflar, özel üyeler de dahil olmak üzere harici sınıfların üyelerine doğrudan erişime sahiptir.
+            }
+        }
+        Inner inner = new Inner();
+        inner.neiShow();
+    }
+    public void waiTest(){
+       waiShow();
+    }
+}
+//Sınıfların özelliklerini ve işlevlerini test etmek için test sınıfları oluşturun
+public class MyTest {
+    public static void main(String[] args) {
+        //Yerel dahili sınıflar, harici nesneler doğrudan oluşturulamaz
+        Outer external = new Outer();
+        dış.waiTest();
+    }
+}
